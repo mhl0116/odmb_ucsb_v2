@@ -74,7 +74,10 @@ entity cafifo is
     control_debug              : in  std_logic_vector(143 downto 0);
     cafifo_debug               : out std_logic_vector(15 downto 0);
     cafifo_wr_addr             : out std_logic_vector(7 downto 0);
-    cafifo_rd_addr             : out std_logic_vector(7 downto 0)
+    cafifo_rd_addr             : out std_logic_vector(7 downto 0);
+
+    l1a_dav_en_out             : out std_logic_vector(NFEB+2 downto 1);
+    lost_pckt_en_out             : out std_logic_vector(NFEB+2 downto 1)
     );
 
 end cafifo;
@@ -650,5 +653,6 @@ begin
   end process;
   bx_cnt_out <= std_logic_vector(to_unsigned(bx_cnt_int, 12));
 
-
+  l1a_dav_en_out <= l1a_dav_en(NFEB+2 downto 1); 
+  lost_pckt_en_out <= lost_pckt_en(NFEB+2 downto 1); 
 end cafifo_architecture;

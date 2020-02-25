@@ -458,6 +458,8 @@ architecture ODMB_UCSB_V2_ARCH of ODMB_UCSB_V2 is
     port (
       CSP_FREE_AGENT_PORT_LA_CTRL  : inout std_logic_vector(35 downto 0);
       CSP_CONTROL_FSM_PORT_LA_CTRL : inout std_logic_vector(35 downto 0);
+      CSP_DAQSIGNAL_LA_CTRL : inout std_logic_vector(35 downto 0);
+      CSP_DAQSIGNAL_VIO_CTRL : inout std_logic_vector(35 downto 0);
       clk40                        : in    std_logic;
       clk80                        : in    std_logic;
       clk160                       : in    std_logic;
@@ -587,7 +589,9 @@ architecture ODMB_UCSB_V2_ARCH of ODMB_UCSB_V2 is
       CALLCT_DLY    : in std_logic_vector(3 downto 0);
       KILL          : in std_logic_vector(NFEB+2 downto 1);
       AUTOKILLED_DCFEBS  : in std_logic_vector(NFEB downto 1);
-      CRATEID       : in std_logic_vector(7 downto 0)
+      CRATEID       : in std_logic_vector(7 downto 0);
+
+      alct_data_in  : in std_logic_vector(15 downto 0)
       ); 
   end component;  -- ODMB_CTRL
 
@@ -929,7 +933,9 @@ architecture ODMB_UCSB_V2_ARCH of ODMB_UCSB_V2 is
       CONTROL1 : inout std_logic_vector (35 downto 0);
       CONTROL2 : inout std_logic_vector (35 downto 0);
       CONTROL3 : inout std_logic_vector (35 downto 0);
-      CONTROL4 : inout std_logic_vector (35 downto 0)
+      CONTROL4 : inout std_logic_vector (35 downto 0);
+      CONTROL5 : inout std_logic_vector (35 downto 0);
+      CONTROL6 : inout std_logic_vector (35 downto 0)
       );
   end component;
 
@@ -1375,6 +1381,8 @@ architecture ODMB_UCSB_V2_ARCH of ODMB_UCSB_V2 is
   signal csp_bpi_la_ctrl              : std_logic_vector(35 downto 0);  -- for the bpi controller stuff up here
   signal csp_bpi_port_la_ctrl         : std_logic_vector(35 downto 0);  -- for the bpi controller stuff up here
   signal csp_lvmb_la_ctrl             : std_logic_vector(35 downto 0);  -- for the bpi controller stuff up here
+  signal csp_daqsignal_la_ctrl        : std_logic_vector(35 downto 0);  -- for the bpi controller stuff up here
+  signal csp_daqsignal_vio_ctrl       : std_logic_vector(35 downto 0);  -- for the bpi controller stuff up here
 
   -- since we're at the top level, let's make the other signals for the csp thingy.
   signal csp_bpi_la_data : std_logic_vector(299 downto 0);
@@ -1398,7 +1406,9 @@ begin
       CONTROL1 => csp_free_agent_port_la_ctrl,
       CONTROL2 => csp_bpi_la_ctrl,
       CONTROL3 => csp_bpi_port_la_ctrl,
-      CONTROL4 => csp_lvmb_la_ctrl
+      CONTROL4 => csp_lvmb_la_ctrl,
+      CONTROL5 => csp_daqsignal_la_ctrl,
+      CONTROL6 => csp_daqsignal_vio_ctrl
       );
 
   MBV : ODMB_VME
@@ -1614,6 +1624,8 @@ begin
 
       CSP_FREE_AGENT_PORT_LA_CTRL  => csp_free_agent_port_la_ctrl,
       CSP_CONTROL_FSM_PORT_LA_CTRL => csp_control_fsm_port_la_ctrl,
+      CSP_DAQSIGNAL_LA_CTRL => csp_daqsignal_la_ctrl,
+      CSP_DAQSIGNAL_VIO_CTRL => csp_daqsignal_vio_ctrl,
       clk40                        => clk40,
       clk80                        => clk80,
       clk160                       => clk160,
@@ -1741,7 +1753,9 @@ begin
       CALLCT_DLY    => CALLCT_DLY,
       KILL          => KILL,
       AUTOKILLED_DCFEBS => autokilled_dcfebs,
-      CRATEID       => CRATEID
+      CRATEID       => CRATEID,
+
+      alct_data_in  => alct_data 
       );                                -- MBC : ODMB_CTRL
 
 

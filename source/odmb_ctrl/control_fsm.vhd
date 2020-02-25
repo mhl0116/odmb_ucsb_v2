@@ -72,7 +72,12 @@ entity CONTROL_FSM is
     cafifo_l1a_cnt   : in std_logic_vector(23 downto 0);
     cafifo_bx_cnt    : in std_logic_vector(11 downto 0);
     cafifo_lost_pckt : in std_logic_vector(NFEB+2 downto 1);
-    cafifo_lone      : in std_logic
+    cafifo_lone      : in std_logic;
+
+    dout_d_out       : out std_logic_vector(15 downto 0);
+    dav_d_out        : out std_logic;
+    dev_cnt_out      : out integer range 1 to 9  := 9
+
     );
 end CONTROL_FSM;
 
@@ -400,8 +405,7 @@ begin
           control_next_state <= IDLE;
         else
           control_next_state <= WAIT_IDLE;
-        end if;
-
+        end if; 
     end case;
   end process;
 
@@ -483,5 +487,8 @@ begin
   lone_word(3) <= x"8" & x"000";
   lone_word(4) <= x"8" & cafifo_bx_cnt;
   
+  dout_d_out <= dout_d;
+  dav_d_out <= dav_d;
+  dev_cnt_out <= dev_cnt;
 
 end CONTROL_arch;
