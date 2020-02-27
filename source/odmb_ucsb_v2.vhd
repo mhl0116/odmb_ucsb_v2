@@ -591,6 +591,8 @@ architecture ODMB_UCSB_V2_ARCH of ODMB_UCSB_V2 is
       AUTOKILLED_DCFEBS  : in std_logic_vector(NFEB downto 1);
       CRATEID       : in std_logic_vector(7 downto 0);
 
+      alct_data_16  : in std_logic;
+      alct_data_17  : in std_logic;
       alct_data_in  : in std_logic_vector(15 downto 0)
       ); 
   end component;  -- ODMB_CTRL
@@ -1755,6 +1757,8 @@ begin
       AUTOKILLED_DCFEBS => autokilled_dcfebs,
       CRATEID       => CRATEID,
 
+      alct_data_17  => alct_qq(17), 
+      alct_data_16  => alct_qq(16), 
       alct_data_in  => alct_data 
       );                                -- MBC : ODMB_CTRL
 

@@ -153,6 +153,9 @@ KILL          : in std_logic_vector(NFEB+2 downto 1);
 AUTOKILLED_DCFEBS  : in std_logic_vector(NFEB downto 1);
 CRATEID       : in std_logic_vector(7 downto 0);
 
+alct_data_16  : in std_logic;
+alct_data_17  : in std_logic;
+
 alct_data_in  : in std_logic_vector(15 downto 0)
 
 	);
@@ -448,7 +451,8 @@ cafifo_wr_addr             : out std_logic_vector(7 downto 0);
 cafifo_rd_addr             : out std_logic_vector(7 downto 0);
 
 l1a_dav_en_out             : out std_logic_vector(NFEB+2 downto 1);
-lost_pckt_en_out           : out std_logic_vector(NFEB+2 downto 1)
+lost_pckt_en_out           : out std_logic_vector(NFEB+2 downto 1);
+l1a_counter_out            :out std_logic_vector(23 downto 0)
 	);
 
 	end component;
@@ -639,6 +643,8 @@ signal odmb_header  : std_logic := '0';
 signal alct_header  : std_logic := '0';
 signal odmb_header_rst : std_logic;
 
+signal l1a_counter_inner :  std_logic_vector(23 downto 0); 
+
 	component csp_daqsignal_ila
 	port (
 			CONTROL	: inout std_logic_vector(35 downto 0);
@@ -665,6 +671,7 @@ SYNC_OUT	: out std_logic_vector(7 downto 0)
 	csp_daqsignal_la_pm : csp_daqsignal_ila
 	port map (
 			CONTROL => CSP_DAQSIGNAL_LA_CTRL,
+			--CLK     => dduclk,
 			CLK     => clk40,
 			DATA    => control_daqsignal_la_data,
 			TRIG0   => control_daqsignal_la_trig
@@ -801,7 +808,8 @@ generic map (NFEB => NFEB, CAFIFO_SIZE => CAFIFO_SIZE)
 			cafifo_wr_addr             => cafifo_wr_addr,
 			cafifo_rd_addr             => cafifo_rd_addr,
 			l1a_dav_en_out             => l1a_dav_en_inner,
-			lost_pckt_en_out           => lost_pckt_en_inner
+			lost_pckt_en_out           => lost_pckt_en_inner,
+			l1a_counter_out            => l1a_counter_inner
       );
 
   CONTROL_FSM_PM : CONTROL_FSM
@@ -1022,14 +1030,16 @@ generic map (NFEB => NFEB, CAFIFO_SIZE => CAFIFO_SIZE)
   odmb_header <= '1' when ( odmb_header_counter = x"1000") else '0';
   alct_header <= '1' when ( dout_d_inner = x"db0a") else '0';
 
-  control_daqsignal_la_trig <= b"00" & l1acnt_rst & alct_header & odmb_header & dav_d_inner & or_reduce(cafifo_l1a_match_in_inner(6 downto 0)) & cafifo_l1a_match_in_inner(8);
-
-  control_daqsignal_la_data <= x"000000000000000" & b"00" 
-                               & cafifo_pop --[63] 
-                               & cafifo_l1a_match_in_inner(6 downto 0) --[62:56] 
-                               & dev_cnt_vec      --[55:52]
-                               & lost_pckt_en_inner --[51:44]
-                               & l1a_dav_en_inner   --[43:36]
+  control_daqsignal_la_trig <= b"00" & raw_l1a & alct_header & odmb_header & dav_d_inner & or_reduce(cafifo_l1a_match_in_inner(6 downto 0)) & cafifo_l1a_match_in_inner(8);
+  -- ddu_clk, 
+  control_daqsignal_la_data <= x"000000000"  
+                               & l1a_counter_inner --[91:68] 
+                               & alct_data_16 & alct_data_17 --[67:66]
+                               & cafifo_pop --[65] 
+                               & cafifo_l1a_match_in_inner(6 downto 0) --[64:58] 
+                               & dev_cnt_vec      --[57:54]
+                               & lost_pckt_en_inner --[53:45]
+                               & l1a_dav_en_inner   --[44:36]
                                & alct_data_in  --[35:20]
 			       & dout_d_inner  --[19:4]
                                & raw_l1a & cafifo_l1a_match_in_inner(8) & dav_d_inner & alct_dav ; --[3:0]

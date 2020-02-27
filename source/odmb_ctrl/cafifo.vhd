@@ -77,7 +77,9 @@ entity cafifo is
     cafifo_rd_addr             : out std_logic_vector(7 downto 0);
 
     l1a_dav_en_out             : out std_logic_vector(NFEB+2 downto 1);
-    lost_pckt_en_out             : out std_logic_vector(NFEB+2 downto 1)
+    lost_pckt_en_out           : out std_logic_vector(NFEB+2 downto 1);
+
+    l1a_counter_out            :out std_logic_vector(23 downto 0)
     );
 
 end cafifo;
@@ -655,4 +657,6 @@ begin
 
   l1a_dav_en_out <= l1a_dav_en(NFEB+2 downto 1); 
   lost_pckt_en_out <= lost_pckt_en(NFEB+2 downto 1); 
+
+  l1a_counter_out <= l1a_cnt_out;
 end cafifo_architecture;
